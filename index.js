@@ -1,10 +1,10 @@
-const buttonCount = 6;
+const buttonCount = 52;
 function ladder(_id, option = {}){
     const canvas = document.getElementById(_id)
     let ctx = canvas.getContext('2d')
     let width = canvas.width
     let height = canvas.height
-     
+
     let line = option.line || buttonCount  //line
 
     let calback //콜백용 변수 입니다
@@ -14,7 +14,7 @@ function ladder(_id, option = {}){
     //마우스 다운여부 변수 입니다
     let isClicked = false
     //마우스가 다운되면서 그리는 경우 끝지점을 담는 변수 입니다
-    let hoverPosition = {}    
+    let hoverPosition = {}
     //마우스 다운인 경우에 처음 기록하는 시작지점 입니다
     let startBridge = null
 
@@ -24,12 +24,12 @@ function ladder(_id, option = {}){
 
     _init()
     _drawLine()
-
+    _randomLine()
     //초기화 함수 입니다
     function _init(){
         ctx.save()
         ctx.clearRect(0,0,width,height)
-        ctx.restore()   
+        ctx.restore()
     }
 
     //맨 처음 선을 그려줍니다
@@ -44,7 +44,7 @@ function ladder(_id, option = {}){
             ctx.lineTo(startPosX, height * 0.9)
             ctx.stroke()
             ctx.closePath()
-            ctx.restore()  
+            ctx.restore()
             let arr = [
                 {x : startPosX, y : height * 0.1},
                 {x : startPosX, y : height * 0.9}
@@ -52,11 +52,12 @@ function ladder(_id, option = {}){
             data.push(arr)
         }
         _sort()
+
     }
 
     //그림을 그리는 메인 함수 입니다
     function _drawDataLine(){
-        
+
         //기둥 선을 먼저 그리고,
         for(let i = 0 ; i < line ; i++){
             let startPosX = i / line * width + 1/line * width / 2
@@ -68,7 +69,7 @@ function ladder(_id, option = {}){
             ctx.lineTo(startPosX, height * 0.9)
             ctx.stroke()
             ctx.closePath()
-            ctx.restore()  
+            ctx.restore()
         }
 
         //사용자가 그린 선분을 그려 줍니다
@@ -82,7 +83,7 @@ function ladder(_id, option = {}){
             ctx.lineTo(endBridge.x, endBridge.y)
             ctx.stroke()
             ctx.closePath()
-            ctx.restore()              
+            ctx.restore()
         })
         _sort()
     }
@@ -128,82 +129,66 @@ function ladder(_id, option = {}){
         return {object : obj, dataIndex : targetIndex}
     }
 
-    //마우스가 움직일 때 이벤트 입니다
-    canvas.addEventListener('mousemove', (event) =>{
-        if(!ctx) return
-        if(isClicked){ //마우스가 Down인 경우에만 동작하여 hover 효과를 그려 줍니다
-            let x1 = event.clientX - canvas.parentElement.offsetLeft || canvas.offsetLeft
-            let y1 = event.clientY - canvas.parentElement.offsetTop || canvas.offsetTop            
-            _init()
-            _drawDataLine()
-            ctx.save()
-            ctx.beginPath()
-            ctx.lineCap = 'round'   
-            ctx.lineJoin = 'round'
-            ctx.lineWidth = 4.25
-            ctx.strokeStyle = '#959595'
-            ctx.moveTo(startBridge.originX, startBridge.originY)
-            ctx.lineTo(x1, y1)
-            ctx.stroke()
-            ctx.closePath()
-            ctx.restore()              
-        }
-    })  
+    function _randomLine(){
 
-    //마우스 다운 이벤트
-    canvas.addEventListener('mousedown', (event) =>{
-        if(!ctx) return
-        isClicked = true
-        let x1 = event.clientX - canvas.parentElement.offsetLeft || canvas.offsetLeft
-        let y1 = event.clientY - canvas.parentElement.offsetTop || canvas.offsetTop
-        if(isClicked){
-            let startTarget = _isInSide(x1,y1)  //시작점을 기록 합니다
-            startBridge = {...startTarget, x: startTarget.object.x, y: y1, originX:x1, originY : y1}  //x축은 그려진 선 기준값을 대입 합니다
-        }        
-    })    
+        if(!canvas) return
 
-    //마우스 업 이벤트
-    canvas.addEventListener('mouseup', (event) =>{
-        if(!ctx) return
-        hoverPosition = {}
-        if(isClicked){  //마우스가 다운된 상태의 조건이 충족하면,
-            let x1 = event.clientX - canvas.parentElement.offsetLeft || canvas.offsetLeft
-            let y1 = event.clientY - canvas.parentElement.offsetTop || canvas.offsetTop
-            let endBridge =  _isInSide(x1,y1)  //가장 마지막의 선 지점값을 가져 옵니다
-            endBridge = {...endBridge, x: endBridge.object.x, y: y1}  //x축은 그려진 선 기준값을 대입 합니다
+        for(let i = 0 ; i < 30 * buttonCount; i ++){
+
+            let randomY = Math.floor(Math.random() * (canvas.clientHeight - 40));
+            const randomX = Math.floor(Math.random() * (canvas.clientWidth + 160));
+
+
+            let startX = randomX - canvas.parentElement.offsetLeft
+            let startY = randomY - canvas.parentElement.offsetTop;
+
+            if(startY < 80) {
+                i--;
+                continue
+            }
+
+
+            console.log("startX : "+startX);
+            console.log("startY : "+startY);
+            let startTarget = _isInSide(startX,startY)  //시작점을 기록 합니다
+            startBridge = {...startTarget, x: startTarget.object.x, y: startY, originX:startX, originY : startY}  //x축은 그려진 선 기준값을 대입 합니다
+
+            hoverPosition = {}
+
+            const randomX2 = randomX+Math.floor(Math.random() * canvas.clientWidth/buttonCount);
+
+            let endX = randomX2 - canvas.parentElement.offsetLeft || canvas.offsetLeft
+            let endY = startY;
+            console.log("endX : "+endX);
+            console.log("endY : "+endY);
+            let endBridge =  _isInSide(endX,endY)  //가장 마지막의 선 지점값을 가져 옵니다
+            endBridge = {...endBridge, x: endBridge.object.x, y: endY}  //x축은 그려진 선 기준값을 대입 합니다
 
             //같은 선분 또는 옆 영역을 뛰어넘어가는 경우 등록하지 않습니다
             if(startBridge.dataIndex == endBridge.dataIndex || Math.abs(startBridge.dataIndex - endBridge.dataIndex) > 1) {
-                isClicked = false
                 hoverPosition = {}
                 startBridge = null
-                _init()
-                _drawDataLine()
-                return
+
+                continue;
             }
 
-            //첫 마우스 다운 지점에서 마지막 마우스 업 지점까지의 거리를 lineData 배열에 담아둡니다
+            //첫  지점에서 마지막 지점까지의 거리를 lineData 배열에 담아둡니다
             let bridgeIdx = _makeid(50)
             startBridge.linkIdx = bridgeIdx
             endBridge.linkIdx = bridgeIdx
             data[startBridge.dataIndex].push(startBridge)  //데이터 배열에도 넣습니다
             data[endBridge.dataIndex].push(endBridge)
             lineData.push({startBridge, endBridge})
-            _init()
-            _drawDataLine()
-        }
-        isClicked = false
-    })   
 
-    //마우스 아웃 이벤트
-    canvas.addEventListener('mouseleave', (event) =>{
-        if(!ctx ) return
-        isClicked = false
-        hoverPosition = {}
-    })   
+        }
+        _init()
+        _drawDataLine()
+
+    }
+
 
     //데이터를 찾는 함수 입니다
-    function _search(me, linkIndex){  
+    function _search(me, linkIndex){
         let linkData
         let idx
         let innIdx
@@ -230,9 +215,9 @@ function ladder(_id, option = {}){
         let innerCursor = 0
         let stop = true
         historyIndex = []
-        
+
         _init()
-        _drawDataLine()        
+        _drawDataLine()
 
         while(stop){
             if(bk >= 1433) {  //혹시모를 무한재귀 대비 브레이킹 구간 입니다
@@ -258,7 +243,7 @@ function ladder(_id, option = {}){
 
             ctx.save()
             ctx.beginPath()
-            ctx.lineCap = 'round'   
+            ctx.lineCap = 'round'
             ctx.lineJoin = 'round'
             ctx.lineWidth = 5
             ctx.strokeStyle = color || 'red'
@@ -266,14 +251,14 @@ function ladder(_id, option = {}){
             ctx.lineTo(end.x, end.y)
             ctx.stroke()
             ctx.closePath()
-            ctx.restore()  
+            ctx.restore()
             bk+=1
         }
         bk = 0
         if(calback){
             calback(data, lineData)
-        }        
-    }      
+        }
+    }
 
 
     return {
@@ -285,7 +270,7 @@ function ladder(_id, option = {}){
                 calback = arg
             }
         }
-    }         
+    }
 }
 
 
@@ -309,3 +294,5 @@ lad.calback( (data, lineData)=>{
     console.log(data)
     console.log(lineData)
 })
+
+
