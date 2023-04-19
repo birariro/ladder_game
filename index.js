@@ -133,54 +133,51 @@ function ladder(_id, option = {}){
 
         if(!canvas) return
 
-        for(let i = 0 ; i < 30 * buttonCount; i ++){
+        for(let i = 1 ; i < buttonCount+10 ; i ++){
 
-            let randomY = Math.floor(Math.random() * (canvas.clientHeight - 40));
-            const randomX = Math.floor(Math.random() * (canvas.clientWidth + 160));
+            let linePos = (canvas.clientWidth / buttonCount) * i;
+            let startX = linePos - canvas.parentElement.offsetLeft
 
-
-            let startX = randomX - canvas.parentElement.offsetLeft
-            let startY = randomY - canvas.parentElement.offsetTop;
-
-            if(startY < 80) {
-                i--;
-                continue
-            }
+            for(let rowIndex = 0 ; rowIndex < buttonCount; rowIndex++){
 
 
-            console.log("startX : "+startX);
-            console.log("startY : "+startY);
-            let startTarget = _isInSide(startX,startY)  //시작점을 기록 합니다
-            startBridge = {...startTarget, x: startTarget.object.x, y: startY, originX:startX, originY : startY}  //x축은 그려진 선 기준값을 대입 합니다
+                console.log("canvas.clientHeight : "+canvas.clientHeight);
+                let randomY = Math.random() * (canvas.clientHeight - 100) + 50;
+                let startY = randomY ;
 
-            hoverPosition = {}
-
-            const randomX2 = randomX+Math.floor(Math.random() * canvas.clientWidth/buttonCount);
-
-            let endX = randomX2 - canvas.parentElement.offsetLeft || canvas.offsetLeft
-            let endY = startY;
-            console.log("endX : "+endX);
-            console.log("endY : "+endY);
-            let endBridge =  _isInSide(endX,endY)  //가장 마지막의 선 지점값을 가져 옵니다
-            endBridge = {...endBridge, x: endBridge.object.x, y: endY}  //x축은 그려진 선 기준값을 대입 합니다
-
-            //같은 선분 또는 옆 영역을 뛰어넘어가는 경우 등록하지 않습니다
-            if(startBridge.dataIndex == endBridge.dataIndex || Math.abs(startBridge.dataIndex - endBridge.dataIndex) > 1) {
+                let startTarget = _isInSide(startX,startY)  //시작점을 기록 합니다
+                startBridge = {...startTarget, x: startTarget.object.x, y: startY, originX:startX, originY : startY}  //x축은 그려진 선 기준값을 대입 합니다
                 hoverPosition = {}
-                startBridge = null
 
-                continue;
+                const randomX2 = linePos+Math.floor(Math.random() * canvas.clientWidth/buttonCount);
+
+                let endX = randomX2 - canvas.parentElement.offsetLeft || canvas.offsetLeft
+                let endY = startY;
+                console.log("endX : "+endX);
+                console.log("endY : "+endY);
+                let endBridge =  _isInSide(endX,endY)  //가장 마지막의 선 지점값을 가져 옵니다
+                endBridge = {...endBridge, x: endBridge.object.x, y: endY}  //x축은 그려진 선 기준값을 대입 합니다
+
+                //같은 선분 또는 옆 영역을 뛰어넘어가는 경우 등록하지 않습니다
+                if(startBridge.dataIndex == endBridge.dataIndex || Math.abs(startBridge.dataIndex - endBridge.dataIndex) > 1) {
+                    hoverPosition = {}
+                    startBridge = null
+                    continue;
+                }
+
+                //첫  지점에서 마지막 지점까지의 거리를 lineData 배열에 담아둡니다
+                let bridgeIdx = _makeid(50)
+                startBridge.linkIdx = bridgeIdx
+                endBridge.linkIdx = bridgeIdx
+                data[startBridge.dataIndex].push(startBridge)  //데이터 배열에도 넣습니다
+                data[endBridge.dataIndex].push(endBridge)
+                lineData.push({startBridge, endBridge})
             }
-
-            //첫  지점에서 마지막 지점까지의 거리를 lineData 배열에 담아둡니다
-            let bridgeIdx = _makeid(50)
-            startBridge.linkIdx = bridgeIdx
-            endBridge.linkIdx = bridgeIdx
-            data[startBridge.dataIndex].push(startBridge)  //데이터 배열에도 넣습니다
-            data[endBridge.dataIndex].push(endBridge)
-            lineData.push({startBridge, endBridge})
 
         }
+
+
+
         _init()
         _drawDataLine()
 
