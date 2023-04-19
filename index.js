@@ -1,6 +1,4 @@
-
-const buttonCount = 52;
-
+const buttonCount = 6;
 function ladder(_id, option = {}){
     const canvas = document.getElementById(_id)
     let ctx = canvas.getContext('2d')
@@ -170,7 +168,7 @@ function ladder(_id, option = {}){
         hoverPosition = {}
         if(isClicked){  //마우스가 다운된 상태의 조건이 충족하면,
             let x1 = event.clientX - canvas.parentElement.offsetLeft || canvas.offsetLeft
-            let y1 = event.clientY - canvas.parentElement.offsetTop || canvas.offsetTop            
+            let y1 = event.clientY - canvas.parentElement.offsetTop || canvas.offsetTop
             let endBridge =  _isInSide(x1,y1)  //가장 마지막의 선 지점값을 가져 옵니다
             endBridge = {...endBridge, x: endBridge.object.x, y: y1}  //x축은 그려진 선 기준값을 대입 합니다
 
